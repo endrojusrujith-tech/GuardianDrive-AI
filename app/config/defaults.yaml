@@ -1,0 +1,98 @@
+# Guardian Drive AI - Default Configuration
+# These are prototype defaults. Tune with real-world testing.
+
+app:
+  name: "Guardian Drive AI"
+  version: "0.1.0-prototype"
+  debug_mode: false
+  lightweight_mode: false
+
+camera:
+  index: 0
+  width: 640
+  height: 480
+  fps: 30
+  mirror_preview: false
+  reconnect_interval_s: 3.0
+  reconnect_attempts: 10
+  night_mode: "auto"   # auto | on | off
+
+vision:
+  face_detector_model: "models/face_detection_yunet_2023mar.onnx"
+  face_confidence_threshold: 0.7
+  landmark_confidence_threshold: 0.5
+  max_faces: 1
+  phone_detector_cadence: 5        # run every N vision frames
+  lightweight_scale: 0.5           # resize factor in lightweight mode
+
+thresholds:
+  head_yaw_degrees: 25.0
+  head_pitch_down_degrees: 20.0
+  head_away_brief_s: 2.0
+  head_away_persistent_s: 4.0
+  eye_closure_soft_s: 1.0
+  eye_closure_strong_s: 2.0
+  yawn_repeat_count: 3
+  yawn_repeat_window_s: 60.0
+  phone_near_face_s: 2.0
+  safe_recovery_s: 3.0
+  level1_persistence_s: 3.0
+  level1_recovery_window_s: 8.0
+  level2_recovery_window_s: 12.0
+  event_cooldown_s: 30.0
+  ear_closed_threshold: 0.20        # Eye Aspect Ratio below = closed
+  mar_yawn_threshold: 0.55          # Mouth Aspect Ratio above = yawn
+  yawn_min_duration_s: 0.5
+  risk_smooth_alpha: 0.3            # EMA smoothing factor
+
+risk_weights:
+  prolonged_eye_closure: 35
+  head_away_persistence: 20
+  repeated_yawning: 15
+  phone_near_face: 20
+  repeated_look_away: 10
+
+alerts:
+  sound_pulses: 3
+  pulse_duration_ms: 200
+  pulse_gap_ms: 150
+  tts_enabled: true
+  tts_rate: 180
+  tts_volume: 0.9
+  level1_message: "Warning: Driver attention required."
+  level2_message: "ALERT: Unsafe driving condition detected. Please pull over safely."
+  level3_message: "EMERGENCY: Critical driver condition. Emergency contacts notified."
+
+clips:
+  buffer_duration_s: 60.0
+  level1_pre_s: 5
+  level1_post_s: 10
+  level2_pre_s: 5
+  level2_post_s: 15
+  level3_pre_s: 10
+  level3_post_s: 20
+  output_dir: "data/clips"
+  max_total_size_mb: 500
+  retention_days: 7
+
+storage:
+  db_path: "data/local/guardian.db"
+  alerts_retention_days: 90
+  alert_clip_retention_days: 7
+  emergency_clip_retention_days: 30
+
+cloud:
+  enabled: false
+  firebase_project_id: ""
+
+notifications:
+  provider: "simulator"    # simulator | twilio | vonage
+  sms_contacts: []         # list of {name, phone}
+
+driver:
+  name: "Driver"
+  vehicle_id: ""
+
+simulation:
+  enabled: false
+  scenario: "full_escalation"
