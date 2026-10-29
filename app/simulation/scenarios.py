@@ -50,10 +50,11 @@ SCENARIOS: Dict[SimulationScenario, List[ScenarioStep]] = {
         ScenarioStep(duration_s=6.0, ear=0.32, head_yaw=0.0, head_dir=HeadDirection.FORWARD),
     ],
 
-    # 3. Sustained head turn: looking away for 5 seconds -> triggers DISTRACTED and Level 1
+    # 3. Sustained head turn: looking away for 8 seconds -> triggers DISTRACTED and Level 1
+    # (2.0s detection persistence + 3.0s Level-1 persistence, with margin)
     SimulationScenario.SUSTAINED_HEAD_TURN: [
         ScenarioStep(duration_s=2.0, ear=0.32, head_yaw=0.0, head_dir=HeadDirection.FORWARD),
-        ScenarioStep(duration_s=5.0, ear=0.30, head_yaw=35.0, head_dir=HeadDirection.RIGHT),
+        ScenarioStep(duration_s=8.0, ear=0.30, head_yaw=35.0, head_dir=HeadDirection.RIGHT),
         ScenarioStep(duration_s=5.0, ear=0.32, head_yaw=0.0, head_dir=HeadDirection.FORWARD),
     ],
 
@@ -68,10 +69,11 @@ SCENARIOS: Dict[SimulationScenario, List[ScenarioStep]] = {
         ScenarioStep(duration_s=6.0, ear=0.30, mar=0.15),
     ],
 
-    # 5. Prolonged eye closure: eyes shut for 3.5s -> triggers DROWSY and Level 1/2
+    # 5. Prolonged eye closure: eyes shut for 6.0s -> triggers DROWSY and Level 1/2
+    # (1.0s detection persistence + 3.0s Level-1 persistence, with margin)
     SimulationScenario.PROLONGED_EYE_CLOSURE: [
         ScenarioStep(duration_s=2.0, ear=0.32),
-        ScenarioStep(duration_s=4.0, ear=0.10),  # Eyes closed (EAR < 0.20)
+        ScenarioStep(duration_s=6.0, ear=0.10),  # Eyes closed (EAR < 0.20)
         ScenarioStep(duration_s=5.0, ear=0.32),  # Driver opens eyes / recovers
     ],
 
@@ -109,10 +111,11 @@ SCENARIOS: Dict[SimulationScenario, List[ScenarioStep]] = {
     ],
 
     # 11. Full escalation: continuous severe drowsiness past Level 1, past Level 2, into Level 3 emergency!
+    # Impairment is held past the Level-2 recovery window (12s) so Level 3 fires
+    # while the driver is still impaired; recovery only after L3.
     SimulationScenario.FULL_ESCALATION: [
         ScenarioStep(duration_s=2.0, ear=0.32),
-        # Severe eye closure + head nod down maintained for 20+ seconds
-        ScenarioStep(duration_s=25.0, ear=0.08, head_pitch=26.0, head_dir=HeadDirection.DOWN),
+        ScenarioStep(duration_s=30.0, ear=0.08, head_pitch=26.0, head_dir=HeadDirection.DOWN),
         ScenarioStep(duration_s=5.0, ear=0.32, head_pitch=0.0, head_dir=HeadDirection.FORWARD),
     ],
 }

@@ -6,8 +6,7 @@ venv/
 .env
 *.log
 logs/
-data/local/*.db
-data/local/*.yaml
+data/local/
 data/clips/
 models/*.task
 build/
