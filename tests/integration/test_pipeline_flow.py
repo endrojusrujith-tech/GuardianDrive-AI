@@ -1,9 +1,12 @@
 """
 Integration tests for the end-to-end PipelineController.
 """
+
 import os
 import tempfile
 import time
+
+from PySide6.QtCore import Qt  # noqa: E402
 
 
 from app.config.settings import Settings
@@ -25,7 +28,11 @@ def test_pipeline_simulation_run():
     def on_status(status: GuiStatus):
         received_statuses.append(status)
 
-    controller.status_updated.connect(on_status)
+    # DirectConnection delivers worker-thread emissions synchronously even
+    # without a running Qt event loop (headless CI).
+    controller.status_updated.connect(
+        on_status, type=Qt.ConnectionType.DirectConnection
+    )
 
     # Start normal driving simulation
     controller.start_simulation(SimulationScenario.NORMAL_DRIVING)

@@ -24,7 +24,6 @@ from tests.unit.test_storage import (
     test_settings_repository,
     test_alert_repository,
     test_retention_manager,
-    temp_db,
 )
 from tests.scenarios.test_scenarios import (
     test_tc04_brief_head_turn_no_alert,
@@ -55,27 +54,32 @@ class TestGuardianDrive(unittest.TestCase):
         test_encryption_roundtrip()
 
     def test_03_storage(self):
-        # Use temp_db generator
-        db_gen = temp_db()
-        db = next(db_gen)
+        # Standalone temp database for the unittest runner (pytest uses the
+        # temp_db fixture defined in tests/unit/test_storage.py).
+        import os
+        import tempfile
+
+        from app.storage.sqlite_db import DatabaseManager
+
+        temp_dir = tempfile.mkdtemp()
+        db_file = os.path.join(temp_dir, "test_guardian.db")
+        db = DatabaseManager(db_path=db_file)
         try:
             test_driver_repository(db)
             test_settings_repository(db)
             test_alert_repository(db)
             test_retention_manager(db)
         finally:
-            try:
-                next(db_gen)
-            except StopIteration:
-                pass
+            db.close()
 
     def test_04_scenarios(self):
-        eng = make_engines()
-        test_tc04_brief_head_turn_no_alert(eng)
-        test_tc05_sustained_head_turn_triggers_distracted(eng)
-        test_tc06_brief_eye_closure_no_alert(eng)
-        test_tc07_prolonged_eye_closure_triggers_drowsy(eng)
-        test_tc10_multi_signal_drowsiness_escalation(eng)
+        # Each scenario test gets a fresh engine set so no state leaks
+        # between scenarios (engines are likewise reset on start in the app).
+        test_tc04_brief_head_turn_no_alert(make_engines())
+        test_tc05_sustained_head_turn_triggers_distracted(make_engines())
+        test_tc06_brief_eye_closure_no_alert(make_engines())
+        test_tc07_prolonged_eye_closure_triggers_drowsy(make_engines())
+        test_tc10_multi_signal_drowsiness_escalation(make_engines())
 
     def test_05_safety_boundaries(self):
         test_low_confidence_never_promotes_alert()
